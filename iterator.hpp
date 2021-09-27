@@ -1,3 +1,8 @@
+#pragma once
+#include <exception>
+#include <iostream>
+#include <iterator>
+
 namespace ft
 {
     template <class Iterator>
@@ -29,57 +34,25 @@ namespace ft
         typedef ft::random_access_iterator_tag  iterator_category;
     };
 
-template<typename It>
-class ReverseIterator:
-	public It
-{
-public:
-	using typename It::value_type;
-    using typename It::pointer;
-    using typename It::const_pointer;
-    using typename It::reference;
-    using typename It::const_reference;
-    using typename It::difference_type;
-public:
-	ReverseIterator(): It() {}
-	ReverseIterator(It const &it): It(it) {}
-	ReverseIterator(ReverseIterator const &other): It(other.p) {}
-	ReverseIterator &operator=(ReverseIterator const &other) {
-		this->p = other.p;
-		return (*this);
-	}
+	template <class C, class T, class Dist = ptrdiff_t, class Pt = T *, class Rt = T&>
+	struct iterator
+	{
+		typedef C iterator_category;
+		typedef T value_type;
+		typedef Dist difference_type;
+		typedef Pt pointer;
+		typedef Rt reference;
+	};
 
-	reference operator*() {
-		It tmp(*this);
-		return (*--tmp);
-	}
-	const_reference operator*() const {
-		It tmp(*this);
-		return (*--tmp);
-	}
-	pointer operator->() {
-		It tmp(*this);
-		return (&*--tmp);
-	}
-	const_pointer operator->() const {
-		It tmp(*this);
-		return (&*--tmp);
-	}
-	ReverseIterator operator++(int) {
-		ReverseIterator tmp(*this);
-		operator++();
-		return (tmp);
-	}
-	It &operator++() {
-		return (this->It::operator--());
-	}
-	ReverseIterator operator--(int) {
-		ReverseIterator tmp(*this);
-		operator--();
-		return (tmp);
-	}
-	It &operator--() {
-		return (this->It::operator++());
-	}
-};
+	struct input_iterator_tag {};
+	struct forward_iterator_tag 
+		: public input_iterator_tag {};
+	struct biderectional_iterator_tag
+		: public forward_iterator_tag {};
+	struct random_access_iterator_tag
+		: public biderectional_iterator_tag {};
+	
+
+	
+	 
 }
