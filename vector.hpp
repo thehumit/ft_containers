@@ -34,13 +34,24 @@ public:
     // void reszie
     void reserve(size_t n)
     {
-        if (n <= cap)
+        if (n <= _capacity)
+            return;
+        this->capacity *= 2;
+        type_name* newarr = this->_allocator.allocate();
+        for (int i = 0; i < this->_size)
+        {
+            
+        }
+
+        
+        
+        
     }
 private:
     T* _arr;
     size_t _size;
     size_t _capacity;
-
+    allocator_type _allocator;
 };
 
 }
