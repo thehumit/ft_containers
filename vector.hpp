@@ -31,22 +31,61 @@ public:
     {
         return (this->_capacity);
     }
-    // void reszie
+    void reszie(size_t n, type_name val = type_name())
+    {
+        size_t old_size = this->_size;
+        if (n < this->_size)
+        {
+            while (this->_size < n)
+            {
+                this->_allocator.destroy(this->_arr[this->_size - 1]);//check out of buff
+                this->_size--;
+            }
+        }
+        else
+        {
+            reserve(n);
+            for (int i = old_size; i < n; i++)
+            {
+                // push_back
+            }
+        }
+    }
     void reserve(size_t n)
     {
-        if (n <= _capacity)
-            return;
-        this->capacity *= 2;
-        type_name* newarr = this->_allocator.allocate();
-        for (int i = 0; i < this->_size)
+        size_t old_capacity = this->_capacity;
+        if (n <= this->_capacity)
+            return; //need to test with setting values;
+        if (this->_capacity == 0)
         {
-            
+            this->_arr = this->_allocator.allocate(n);
+            this->_capacity = n;
         }
-
-        
-        
-        
+        else if (this->_capacity < n)
+        {
+            if ((this->_capacity * 2) > n)
+                this->capacity *= 2;
+            else
+                this->capacity = n;
+            type_name* newarr = this->_allocator.allocate(this->_capacity);
+            for (int i = 0; i < this->_size, i++)
+            {
+                this->_allocator.construct(newarr + i, this->_arr[i]);
+                this->_allocator.destroy(this->_arr + i);
+            }
+            this->_allocator.deallocate(this->_arr, old_capacity);
+            this->_arr = newarr;
+        }
     }
+
+    void push_pack(const type_name& val)
+    {
+        this->reserve(this->_size + 1);
+        this->_allocator.construct(this->_arr + this->_size, val);
+        this->_size++;
+    }
+
+
 private:
     T* _arr;
     size_t _size;
