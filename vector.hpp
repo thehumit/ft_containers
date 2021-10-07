@@ -228,8 +228,25 @@ public:
             while (it != position)
                 it++;
             old_arr_i = it - this->begin();
-            type_name* newarr = this->_allocator.allocate()
-
+            type_name* newarr = this->_allocator.allocate(this->_size - old_arr_i - n);
+            for (int i = old_arr_i; i < this->_size; i++)
+            {
+                this->_allocator.construct(newarr + i, this->_arr[it - this->begin() + i]);
+            }
+            for (int i = 0; i < n; i++)
+            {
+                this->_allocator.destroy(it);
+                this->_allocator.construct(it, val);
+                it++;
+            }
+            tmp_i = 0;
+            for (int i = it - this->begin(); i < this->_size + n; i++)
+            {////check leaks, if i need to destroy object
+                this->_allocator.construct(it, newarr[tmp_i]);
+                this->_allocator.destroy(newarr[tmp_i]);
+                tmp_i++;
+            }
+            this->_allocator.deallocate(this->_arr, tmp_i);
         }
     }
 
