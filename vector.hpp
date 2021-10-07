@@ -196,7 +196,7 @@ public:
 
         if (this->_size + n >= this->_capacity)
         {
-            if ((this->_capacity * 2) > n)
+            if ((this->_capacity * 2) > n + this->_size)
                 this->capacity *= 2;
             else
                 this->capacity = this->_size + n;
