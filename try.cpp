@@ -18,8 +18,7 @@ int main(void)
 {
 	std::vector<int> v  (3, 100);
 	std::vector<int>::iterator it = v.begin();
-
-	v.insert(it, 4, 200);
+	v.insert(it, 200);
 	std::cout << v << std::endl;
 
 }
