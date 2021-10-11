@@ -6,6 +6,14 @@
 
 namespace ft
 {
+    struct input_iterator_tag {};
+	struct forward_iterator_tag 
+		: public input_iterator_tag {};
+	struct biderectional_iterator_tag
+		: public forward_iterator_tag {};
+	struct random_access_iterator_tag
+		: public biderectional_iterator_tag {};
+
     template <class Iterator>
 	struct iterator_traits
     {
@@ -35,15 +43,9 @@ namespace ft
         typedef ft::random_access_iterator_tag  iterator_category;
     };
 
-	struct input_iterator_tag {};
-	struct forward_iterator_tag 
-		: public input_iterator_tag {};
-	struct biderectional_iterator_tag
-		: public forward_iterator_tag {};
-	struct random_access_iterator_tag
-		: public biderectional_iterator_tag {};
+
 	
 
 	
-	 std::iterator_traits< std::vector<std::string>::const_reverse_iterator >::
+	//  std::iterator_traits< std::vector<std::string>::const_reverse_iterator >::
 }

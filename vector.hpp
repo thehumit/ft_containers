@@ -2,13 +2,14 @@
 #include <exception>
 #include <iostream>
 #include <iterator>
+#include "utils.hpp"
 #include "iterator.hpp"
 
 namespace ft
 {
 
 template <class T, class Alloc = std::allocator<T> >
-class Vector
+class vector
 {
 public:
     typedef T   type_name;
@@ -17,8 +18,8 @@ public:
     typedef typename allocator_type::const_reference    const_reference;
     typedef typename allocator_type::pointer            pointer;
     typedef typename allocator_type::const_pointer      const_pointer;
-    typedef ft::RandomAccessIterator<value_type>               iterator;
-    typedef ft::RandomAccessIterator<const value_type>            const_iterator;
+    typedef ft::RandomAccessIterator<type_name>               iterator;
+    typedef ft::RandomAccessIterator<const type_name>            const_iterator;
     typedef ft::reverse_iterator<iterator>             reverse_iterator;
     typedef ft::reverse_iterator<const_iterator>       const_reverse_iterator;
     typedef typename ft::iterator_traits<iterator>::difference_type    difference_type;
@@ -26,19 +27,19 @@ public:
 
     explicit vector (const allocator_type& alloc = allocator_type())
 	:
-		_allocator(alloc),
         _arr(nullptr),
         _size(0),
-        _capacity(0)
+        _capacity(0),
+		_allocator(alloc)
 	{}
 
-    explicit vector (size_t n, const type_name& val = value_type(), 
+    explicit vector (size_t n, const type_name& val = type_name(), 
         const allocator_type& alloc = allocator_type())
 	:
-		_allocator(alloc),
         _arr(nullptr),
         _size(0),
-        _capacity(0)
+        _capacity(0),
+		_allocator(alloc)
 	{
 		this->_arr = this->_allocator.allocate( n );
 		this->_capacity = n;
@@ -68,7 +69,7 @@ public:
 
     size_t size() const
     {
-        return (this._size);
+        return (this->_size);
     }
 
     size_t capacity() const
@@ -107,12 +108,12 @@ public:
 
     iterator begin()
     {
-        return (this->_arr);
+        return (iterator(this->_arr));
     }
 
     const_iterator begin() const
     {
-        return(this->_arr);
+        return(iterator(this->_arr));
     }
 
     iterator end()
@@ -161,12 +162,12 @@ public:
 
     reference back ()
     {
-        return (*(this->_arr + size - 1));
+        return (*(this->_arr + this->_size - 1));
     }
 
     const_reference back () const
     {
-        return (*(this->_arr + size -1));
+        return (*(this->_arr + this->_size -1));
     }
 
     void reszie(size_t n, type_name val = type_name())
@@ -203,11 +204,11 @@ public:
         else if (this->_capacity < n)
         {
             if ((this->_capacity * 2) > n)
-                this->capacity *= 2;
+                this->_capacity *= 2;
             else
-                this->capacity = n;
+                this->_capacity = n;
             type_name* newarr = this->_allocator.allocate(this->_capacity);
-            for (int i = 0; i < this->_size, i++)
+            for (size_t i = 0; i < this->_size; i++)
             {
                 this->_allocator.construct(newarr + i, this->_arr[i]);
                 this->_allocator.destroy(this->_arr + i);
@@ -247,11 +248,11 @@ public:
         if (this->_size + n >= this->_capacity)
         {
             if ((this->_capacity * 2) > n + this->_size)
-                this->capacity *= 2;
+                this->_capacity *= 2;
             else
-                this->capacity = this->_size + n;
+                this->_capacity = this->_size + n;
             type_name* newarr = this->_allocator.allocate(this->_capacity);
-            for (int i = 0; it != position, i++)
+            for (size_t i = 0; it != position; i++)
             {
                 this->_allocator.construct(newarr + i, this->_arr[i]);
                 this->_allocator.destroy(this->_arr + i);
@@ -259,13 +260,13 @@ public:
                 it++;
             }
             tmp_i = old_arr_i;
-            for (int i = old_arr_i + n; i < this->_size + n; i++)
+            for (size_t i = old_arr_i + n; i < this->_size + n; i++)
             {
                 this->_allocator.construct(newarr + i, this->_arr[old_arr_i]);
                 this->_allocator.destroy(this->_arr + old_arr_i);
                 old_arr_i++;
             }
-            for (int j = 0; j < n; j++)
+            for (size_t j = 0; j < n; j++)
             {
                 this->_allocator.construct(newarr + old_arr_i, val);
                 old_arr_i++;
@@ -279,31 +280,31 @@ public:
                 it++;
             old_arr_i = it - this->begin();
             type_name* newarr = this->_allocator.allocate(this->_size - old_arr_i - n);
-            for (int i = old_arr_i; i < this->_size; i++)
+            for (size_t i = old_arr_i; i < this->_size; i++)
             {
                 this->_allocator.construct(newarr + i, this->_arr[it - this->begin() + i]);
             }
-            for (int i = 0; i < n; i++)
+            for (size_t i = 0; i < n; i++)
             {
                 this->_allocator.destroy(it);
                 this->_allocator.construct(it, val);
-                it++;
+                // it++;
             }
             tmp_i = 0;
-            for (int i = it - this->begin(); i < this->_size + n; i++)
+            for (size_t i = it - this->begin(); i < this->_size + n; i++)
             {////check leaks, if i need to destroy object
                 this->_allocator.construct(it, newarr[tmp_i]);
                 this->_allocator.destroy(newarr[tmp_i]);
                 tmp_i++;
                 it++;
             }
-            this->_allocator.deallocate(, tmp_i);
+            this->_allocator.deallocate(newarr, tmp_i);
         }
     }
 
 
 private:
-    T* _arr;
+    pointer _arr;
     size_t _size;
     size_t _capacity;
     allocator_type _allocator;
