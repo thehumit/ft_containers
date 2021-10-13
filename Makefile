@@ -8,7 +8,7 @@ SRCS_HPP = *.hpp
 
 OBJS			= $(SRCS:%cpp=%o)
 
-CC				= clang++	-fsanitize=address -Wall -Werror -Wextra
+CC				= clang++ -Wall -Werror -Wextra #-fsanitize=address
 RM				= rm -f
 
 NAME			= containers

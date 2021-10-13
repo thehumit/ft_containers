@@ -41,7 +41,7 @@ public:
         _capacity(0),
 		_allocator(alloc)
 	{
-		this->_arr = this->_allocator.allocate( n );
+		this->_arr = this->_allocator.allocate(n);
 		this->_capacity = n;
         this->_size = n;
 		for (int i = 0; i < n; i++)
@@ -251,55 +251,45 @@ public:
                 this->_capacity *= 2;
             else
                 this->_capacity = this->_size + n;
-            type_name* newarr = this->_allocator.allocate(this->_capacity);
-            for (size_t i = 0; it != position; i++)
-            {
-                this->_allocator.construct(newarr + i, this->_arr[i]);
-                this->_allocator.destroy(this->_arr + i);
-                old_arr_i++;
-                it++;
-            }
-            tmp_i = old_arr_i;
-            for (size_t i = old_arr_i + n; i < this->_size + n; i++)
-            {
-                this->_allocator.construct(newarr + i, this->_arr[old_arr_i]);
-                this->_allocator.destroy(this->_arr + old_arr_i);
-                old_arr_i++;
-            }
-            for (size_t j = 0; j < n; j++)
-            {
-                this->_allocator.construct(newarr + old_arr_i, val);
-                old_arr_i++;
-            }
-            this->_allocator.deallocate(this->_arr, old_capacity);
-            this->_arr = newarr;
         }
-        else
+        type_name* newarr = this->_allocator.allocate(this->_capacity);
+        for (size_t i = 0; it != position; i++)
         {
-            while (it != position)
-                it++;
-            old_arr_i = it - this->begin();
-            type_name* newarr = this->_allocator.allocate(this->_size - old_arr_i - n);
-            for (size_t i = old_arr_i; i < this->_size; i++)
-            {
-                this->_allocator.construct(newarr + i, this->_arr[it - this->begin() + i]);
-            }
-            for (size_t i = 0; i < n; i++)
-            {
-                this->_allocator.destroy(it);
-                this->_allocator.construct(it, val);
-                // it++;
-            }
-            tmp_i = 0;
-            for (size_t i = it - this->begin(); i < this->_size + n; i++)
-            {////check leaks, if i need to destroy object
-                this->_allocator.construct(it, newarr[tmp_i]);
-                this->_allocator.destroy(newarr[tmp_i]);
-                tmp_i++;
-                it++;
-            }
-            this->_allocator.deallocate(newarr, tmp_i);
+            this->_allocator.construct(newarr + i, this->_arr[i]);
+            this->_allocator.destroy(this->_arr + i);
+            old_arr_i++;
+            it++;
         }
+        tmp_i = old_arr_i;
+        for (size_t i = old_arr_i + n; i < this->_size + n; i++)
+        {
+            this->_allocator.construct(newarr + i, this->_arr[old_arr_i]);
+            this->_allocator.destroy(this->_arr + old_arr_i);
+            old_arr_i++;
+        }
+        for (size_t j = 0; j < n; j++)
+        {
+            this->_allocator.construct(newarr + tmp_i, val);
+            tmp_i++;
+        }
+        this->_allocator.deallocate(this->_arr, old_capacity);
+        this->_arr = newarr;
+    }
+
+
+    template <class InputIterator>
+    void insert(iterator position, InputIterator first, InputIterator last,
+        typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = nullptr)
+    {
+        iterator it = this->begin();
+        int i = 0;
+        difference_type dist = ft::distance(first, last);
+        for (; it != position; i++)
+        {
+            
+        }
+
+
     }
 
 
