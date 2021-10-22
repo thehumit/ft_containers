@@ -33,7 +33,7 @@ public:
 		_allocator(alloc)
 	{}
 
-    explicit vector (size_t n, const type_name& val = type_name(), 
+    explicit vector (size_t n, const type_name& val = type_name(),
         const allocator_type& alloc = allocator_type())
 	:
         _arr(nullptr),
@@ -231,7 +231,7 @@ public:
         this->_size--;
     }
 
-    iterator insert(iterator position, const type_name &val) 
+    iterator insert(iterator position, const type_name &val)
     {
         difference_type dist = position - this->begin();
 		this->insert(position, 1, val);
@@ -283,15 +283,93 @@ public:
     {
         iterator it = this->begin();
         int i = 0;
+        int old_arr_i = 0;
+        int old_capacity = this->_size;
         difference_type dist = ft::distance(first, last);
+
+        if (this->_size + dist >= this->_capacity)
+        {
+            if ((this->_capacity * 2) > dist + this->_size)
+                this->_capacity *= 2;
+            else
+                this->_capacity = this->_size + dist;
+        }
+        type_name* newarr = this->_allocator.allocate(this->_capacity);
         for (; it != position; i++)
         {
-            
+            this->_allocator.construct(newarr + i, this->_arr[i]);
+            this->_allocator.destroy(this->_arr + i);
+            it++;
         }
-
-
+        old_arr_i = i;
+        for (size_t j = i + dist; i < this->_size + dist; j++)
+        {
+            this->_allocator.construct(newarr + j, this->_arr[i]);
+            this->_allocator.destroy(this->_arr + i);
+            i++;
+        }
+        for (size_t j = 0; j < dist; j++)
+        {
+            this->_allocator.construct(newarr + old_arr_i, *first++);
+            old_arr_i++;
+        }
+        this->_allocator.deallocate(this->_arr, old_capacity);
     }
 
+    void assign(size_t n, type_name &val)
+    {
+        this->clear();
+        if (n == 0)
+            return ;
+        if (this->_capacity >= n)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                this->_allocator.construct(this->_arr + i, val);
+            }
+        }
+        else
+        {
+            this->_allocator.deallocate(this->_arr, this->_capacity);
+            this->_arr = this->_allocator.allocate(n);
+            this->_size = n;
+            this->_capacity = n;
+            for (int i = 0; i < n; i++)
+            {
+                this->_allocator.construct(this->_arr + i, val);
+            }
+        }
+    }
+
+    template <class InputIterator>
+    void assign (InputIterator first, InputIterator last,
+        typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = u_nullptr)
+    {
+        this->clear();
+        size_t dist = ft::distance(first, last);
+        if (this->_capacity >= dist)
+        {
+            for(int i = 0; &(*first) != &(*last); first++, i++)
+                this->_allocator.construct(this->_arr + i, *first);
+        }
+        else
+        {
+            type_name *newarr = this->_allocator.allocate(dist);
+            for(int i = 0; &(*first) != &(*last); first++, i++)
+                this->_allocator.construct(newarr + i, *first);
+            this->_allocator.deallocate(this->_arr, this->capacity());
+            this->_arr = newarr;
+            this->_capacity = dist;
+            this->_size = dist;
+        }
+    }
+
+    void clear()
+	{
+		size_t size = this->size();
+		for (size_t i = 0; i < size; i++)
+			this->_allocator.destroy(this->_arr + i);
+	}
 
 private:
     pointer _arr;
