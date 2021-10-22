@@ -11,6 +11,11 @@
         "unordered_map": "cpp",
         "utility": "cpp",
         "vector": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "__node_handle": "cpp",
+        "deque": "cpp",
+        "memory_resource": "cpp",
+        "map": "cpp",
+        "set": "cpp"
     }
 }

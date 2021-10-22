@@ -27,14 +27,14 @@ public:
     RandomAccessIterator (const RandomAccessIterator<T, Dist, Pt, Rt>& X)
         : _current(X.base()) {}
     
-    operator RandomAccessIterator<T, Dist, T*, T&>()
-	{
-		return RandomAccessIterator<T, Dist, T*, T&>(this->_current);
-	}
+    // operator RandomAccessIterator<T, Dist, T*, T&>()
+	// {
+	// 	return RandomAccessIterator<T, Dist, T*, T&>(this->_current);
+	// }
     
-    operator RandomAccessIterator<T, Dist, const T*, const T&>()
+    operator RandomAccessIterator<const T, Dist, const T*, const T&>()
 	{
-		return RandomAccessIterator<T, Dist, const T*, const T&>(this->_current);
+		return RandomAccessIterator<const T, Dist, const T*, const T&>(this->_current);
 	}
 
     Pt base() const
@@ -133,7 +133,7 @@ protected:
 
 template<class RanIt>
 class reverse_iterator
-    :public  iterator<typename iterator_traits<RanIt>::iter_category,
+    :public  iterator<typename iterator_traits<RanIt>::iterator_category,
                     typename iterator_traits<RanIt>::value_type, 
                     typename iterator_traits<RanIt>::difference_type,
                     typename iterator_traits<RanIt>::pointer,
@@ -141,16 +141,19 @@ class reverse_iterator
 {
 public:
     typedef reverse_iterator<RanIt> RevIt;
-    typedef typename iterator_traits<RanIt>::difference_type Diff;
+    typedef typename iterator_traits<RanIt>::difference_type Dist;
     typedef typename iterator_traits<RanIt>::pointer Pt;
     typedef typename iterator_traits<RanIt>::reference Rt; 
     typedef RanIt iterator_type;
     reverse_iterator() {}
+
     explicit reverse_iterator(RanIt X)
         : _current(X) {}
+
     template<class U>
     reverse_iterator (const reverse_iterator<U>& X)
         : _current (X.base()) {}
+
     RanIt base() const
     {
         return (this->_current); 
@@ -186,37 +189,75 @@ public:
         ++this->_current;
         return (Tmp);
     }
-    bool Eq(const RevIt& Y) const
-    {
-        return (this->_current == Y._current);
-    }
-    RevIt& operator+=(Diff N)
-    {
-        this->_current -= N;
-        return (*this);
-    }
-    RevIt operator*(Diff N) const
-    {
-        return (RevIt(this->_current - N));
-    }
-    RevIt& operator-=(Diff N)
+    ////
+    RevIt& operator+=(Dist N)
     {
         this->_current += N;
         return (*this);
     }
-    RevIt operator-(Diff N) const
+    RevIt operator+(Dist N) const
     {
         return (RevIt(this->_current + N));
     }
-    Rt operator [] (Diff N) const
+    RevIt& operator-=(Dist N)
+    {
+        this->_current += N;
+        return (*this); 
+    }
+    RevIt operator-(Dist N) const
+    {
+        return (RevIt(this->_current + N));
+    }
+    ////
+    bool Eq(const RevIt& Y) const
+    {
+        return (this->_current == Y._current);
+    }
+    RevIt operator*(Dist N) const
+    {
+        return (RevIt(this->_current - N));
+    }
+    Rt operator [] (Dist N) const
     {
         return (*(*this + N));
     }
+    /////
+    bool operator==(int Y) const
+    {
+        return (this->_current == (Pt)Y); 
+    }
+    bool operator==(const RevIt& Y) const
+    {
+        return (this->_current == Y._current); 
+    }
+
+    bool operator!=(const RevIt& Y) const
+    {
+        return (!(*this == Y));
+    }
+
+    bool operator<(const RevIt& Y) const
+    {
+        return (this->_current > Y._current);
+    }
+    bool operator>(const RevIt& Y) const
+    {
+        return (Y > *this);
+    }
+    bool operator<=(const RevIt& Y) const
+    {
+        return (!(Y > *this));
+    }
+    bool operator>=(const RevIt& Y) const
+    {
+        return (!(*this > Y));
+    }
+    //////
     bool Lt (const RevIt& Y) const
     {
         return (Y._current < this->_current);
     }
-    Diff Mi (const RevIt& Y) const
+    Dist Mi (const RevIt& Y) const
     {
         return (Y._current - this->_current);
     }

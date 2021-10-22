@@ -19,8 +19,13 @@ int main(void)
 	std::vector<int> v  (3, 100);
 	std::vector<int>::iterator it = v.begin();
 	v.insert(it, 200);
+    
 	std::cout << v << std::endl;
 
+    it = v.erase(v.begin() + 3);
+    std::cout << v << std::endl;
+
+    std::cout << *it << std::endl;
 }
 
 // template <class T>

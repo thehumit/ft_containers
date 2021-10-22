@@ -1,17 +1,15 @@
-#include "vector.hpp"
-#include <unistd.h>
+#include <iostream>
+#include <vector>
 
-int main()
-{
-	ft::vector<int> vec;
-	for (int i = 0; i < 5; i++)
-	{
-		vec.push_pack(10);
-		std::cout << *(vec.begin() + i) << " capacity:" << vec.capacity() << std::endl;
-	}
-	// vec.begin();
-	vec.insert(vec.begin(), 20,  100);
-	for (int i = 5; i < 10; i++)
-		std::cout << *(vec.begin() + i) << " capacity:" << vec.capacity() << std::endl;
-	pause();
+#include "vector_test.hpp"
+
+int main(void) {
+    push_back();
+    pop_back();
+    assign();
+    insert();
+    constructor_test();
+    erase_test();
+    ft_vector_tests();
+    return 0;
 }
