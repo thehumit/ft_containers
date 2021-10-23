@@ -295,45 +295,105 @@ public:
         this->_arr = newarr;
     }
 
-
     template <class InputIterator>
-    void insert(iterator position, InputIterator first, InputIterator last,
-        typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = nullptr)
-    {
-        iterator it = this->begin();
-        int i = 0;
-        int old_arr_i = 0;
-        int old_capacity = this->_size;
-        difference_type dist = ft::distance(first, last);
+    void insert (iterator position, InputIterator first,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
+	{
+		size_type	n = last - first;
+
+		size_type	begin_capacity = this->_capacity;
+		if (this->_capacity == 0)
+		{
+			this->_capacity = 1;
+		}
+		while (this->_capacity < this->_size + n)
+		{
+			this->_capacity *= 2;
+		}
+
+		pointer	tmp;
+		pointer	tmp_last;
+
+		tmp = this->_allocator.allocate(this->_capacity);
+		
+		tmp_last = tmp;
+
+		pointer		left = this->_arr;
+		iterator	left_iter(left);
+
+		while (this->_arr && left_iter < position)
+		{
+			this->_allocator.construct(tmp_last, *left_iter);
+			this->_allocator.destroy(left);
+
+			tmp_last++;
+			left++;
+			left_iter++;
+		}
+		while (n > 0)
+		{
+			this->_allocator.construct(tmp_last, *first);
+			this->_size++;
+			tmp_last++;
+			first++;
+			n--;
+		}
+		while (this->_arr && left_iter < this->end())
+		{
+			this->_allocator.construct(tmp_last, *left);
+			this->_allocator.destroy(left);
+
+			tmp_last++;
+			left++;
+			left_iter++;
+		}
+		if (this->_arr)
+		{
+			this->_allocator.deallocate(this->_arr, begin_capacity);
+		}
+		this->_arr = tmp;
+		// this->_end = this->_arr + this->_size;
+	}
+
+
+    // template <class InputIterator>
+    // void insert(iterator position, InputIterator first, InputIterator last,
+    //     typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = nullptr)
+    // {
+    //     iterator it = this->begin();
+    //     int i = 0;
+    //     int old_arr_i = 0;
+    //     int old_capacity = this->_size;
+    //     difference_type dist = ft::distance(first, last);
         
-        if (this->_size + dist >= this->_capacity)
-        {
-            if ((this->_capacity * 2) > dist + this->_size)
-                this->_capacity *= 2;
-            else
-                this->_capacity = this->_size + dist;
-        }
-        type_name* newarr = this->_allocator.allocate(this->_capacity);
-        for (; it != position; i++)
-        {
-            this->_allocator.construct(newarr + i, this->_arr[i]);
-            this->_allocator.destroy(this->_arr + i);
-            it++;
-        }
-        old_arr_i = i;
-        for (size_type j = i + dist - 1; i < this->_size + dist - 1; j++)//////
-        {
-            this->_allocator.construct(newarr + j, this->_arr[i]);
-            this->_allocator.destroy(this->_arr + i);
-            i++;
-        }
-        for (size_type j = 0; j < dist; j++)
-        {
-            this->_allocator.construct(newarr + old_arr_i, *first++);
-            old_arr_i++;
-        }
-        this->_allocator.deallocate(this->_arr, old_capacity);
-    }
+    //     if (this->_size + dist >= this->_capacity)
+    //     {
+    //         if ((this->_capacity * 2) > dist + this->_size)
+    //             this->_capacity *= 2;
+    //         else
+    //             this->_capacity = this->_size + dist;
+    //     }
+    //     type_name* newarr = this->_allocator.allocate(this->_capacity);
+    //     for (; it != position; i++)
+    //     {
+    //         this->_allocator.construct(newarr + i, this->_arr[i]);
+    //         this->_allocator.destroy(this->_arr + i);
+    //         it++;
+    //     }
+    //     old_arr_i = i;
+    //     for (size_type j = i + dist - 1; i < this->_size + dist - 1; j++)//////
+    //     {
+    //         this->_allocator.construct(newarr + j, this->_arr[i]);
+    //         this->_allocator.destroy(this->_arr + i);
+    //         i++;
+    //     }
+    //     for (size_type j = 0; j < dist; j++)
+    //     {
+    //         this->_allocator.construct(newarr + old_arr_i, *first++);
+    //         old_arr_i++;
+    //     }
+    //     this->_allocator.deallocate(this->_arr, old_capacity);
+    // }
 
     void assign(size_type n, const type_name &val)
     {
