@@ -12,6 +12,7 @@ distance (InputIterator first, InputIterator last)
     typename ft::iterator_traits<InputIterator>::difference_type rtn = 0;
     while (first != last)
     {
+        std::cout << "!!!!!!" << *first << "!!!!!!" << std::endl;
         first++;
         rtn++;
     }

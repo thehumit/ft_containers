@@ -5,6 +5,14 @@
 #include "utils.hpp"
 #include "iterator.hpp"
 
+// std::ostream& operator<< (std::ostream &out, const std::vector<T> &vec)
+// {
+    // int size = vec.size();
+    // for (int i = 0; i < size; i++)
+        // out << "++" << vec[i] << std::endl;
+    // return out;
+// }
+
 namespace ft
 {
 
@@ -297,7 +305,7 @@ public:
         int old_arr_i = 0;
         int old_capacity = this->_size;
         difference_type dist = ft::distance(first, last);
-
+        
         if (this->_size + dist >= this->_capacity)
         {
             if ((this->_capacity * 2) > dist + this->_size)
@@ -313,7 +321,7 @@ public:
             it++;
         }
         old_arr_i = i;
-        for (size_type j = i + dist; i < this->_size + dist; j++)
+        for (size_type j = i + dist - 1; i < this->_size + dist - 1; j++)//////
         {
             this->_allocator.construct(newarr + j, this->_arr[i]);
             this->_allocator.destroy(this->_arr + i);
