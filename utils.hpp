@@ -77,4 +77,11 @@ struct is_integral_type<unsigned long long int> : public is_integral_res<true, u
 template <typename T>
     struct is_integral : public is_integral_type<T> { };
 
+template <class T>
+struct less
+{
+	bool operator()( const T& lhs, const T& rhs ) const
+	{ return (lhs < rhs); }
+};
+
 }
