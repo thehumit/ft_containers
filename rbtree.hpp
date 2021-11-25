@@ -206,5 +206,27 @@ public:
 	{
 		return (const_iterator(this->_head));
 	}
+
+    node_type* BSTInsert(node_type* root, node_type *pt)
+    {
+        /* If the tree is empty, return a new node */
+        if (root == NULL)
+           return pt;
+    
+        /* Otherwise, recur down the tree */
+        if (pt->_data < root->_data)
+        {
+            root->left  = BSTInsert(root->left, pt);
+            root->left->prev = root;
+        }
+        else if (pt->data > root->data)
+        {
+            root->right = BSTInsert(root->right, pt);
+            root->right->prev = root;
+        }
+    
+        /* return the (unchanged) node pointer */
+        return root;
+    }
     };
 // } // namespace ft
