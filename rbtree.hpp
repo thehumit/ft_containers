@@ -1,8 +1,9 @@
 #pragma once
 #include "utils.hpp"
+#include <queue>
 // #include "rbiter.hpp"
-#define RED_NODE "\x1b[37;41m"
-#define BLACK_NODE "\x1b[37;40m"
+#define RED_node "\x1b[37;41m"
+#define BLACK_node "\x1b[37;40m"
 #define CLEAR_COLOR "\x1b[m"
 
 enum Colors
@@ -26,15 +27,15 @@ template <class T, class Compare = ft::less<T>, class Alloc = std::allocator<T> 
 
     public:
         class red_black_node;
-            typedef typename Alloc::value_type value_type;
+        typedef typename Alloc::value_type value_type;
 	    typedef	Alloc allocator_type;
         typedef typename Alloc::reference reference;
 	    typedef typename Alloc::const_reference	const_reference;
         typedef typename Alloc::pointer pointer;
         typedef typename Alloc::const_pointer const_pointer;
     	typedef typename Alloc::size_type   size_type;
-        typedef typename Alloc::template rebind<red_black_node>::other allocator_node_type;
-        typedef red_black_node	node_type;
+        typedef typename Alloc::template rebind<red_black_node>::other allocator_node;
+        typedef red_black_node	node;
         typedef typename ft::red_black_tree_iterator<value_type, pointer, reference>    iterator;
 	    typedef typename ft::red_black_tree_iterator<value_type, const_pointer, const_reference>    const_iterator;
         typedef typename ft::reverse_iterator<iterator> reverse_iterator;
@@ -53,9 +54,9 @@ template <class T, class Compare = ft::less<T>, class Alloc = std::allocator<T> 
 		red_black_node		*left;
 		red_black_node		*right;
 
-		red_black_node(const value_type& data, Colors color,
+		red_black_node(const value_type& _data, Colors _color,
 			red_black_node *prev = nullptr, red_black_node *left = nullptr, red_black_node *right = nullptr)
-			: _data(data), _color(color), prev(prev), left(left), right(right) {}
+			: _data(_data), _color(_color), prev(prev), left(left), right(right) {}
 		
 		bool	operator!() const
 		{ return (!this->prev); }
@@ -79,9 +80,9 @@ template <class T, class Compare = ft::less<T>, class Alloc = std::allocator<T> 
 			for (int i = 0; i < level; i++)
 				std::cout << "\t";
 			if (node && red_black_node::color(node) == RED)
-				std::cout << RED_NODE;
+				std::cout << RED_node;
 			else
-				std::cout << BLACK_NODE;
+				std::cout << BLACK_node;
 			if (node)
 				std::cout << node->_data << CLEAR_COLOR << std::endl;
 			else
@@ -142,21 +143,16 @@ template <class T, class Compare = ft::less<T>, class Alloc = std::allocator<T> 
 				return (this->prev->right);
 			return (this->prev->left);
 		}
+    };
 
-    public:
-	    allocator_type		_allocator;
-	    allocator_node_type	_allocator_node;
-	    Compare				_comparator;
-	    size_type			_size;
-	    node_type			*_head;
-	    node_type			*_root;
+
     private:
-        node_type	*new_node(const T& value, Colors color = RED)
+        node	*new_node(const T& value, Colors _color = RED)
 	    {
-	    	node_type	*node = this->_allocator_node.allocate(1);
+	    	node	*tmp = this->_allocator_node.allocate(1);
 
-	    	this->_allocator_node.construct(node, node_type(value, color));
-	    	return (node);
+	    	this->_allocator_node.construct(tmp, node(value, _color));
+	    	return (tmp);
 	    }
 
 	    bool	less(const_reference v1, const_reference v2)
@@ -165,7 +161,14 @@ template <class T, class Compare = ft::less<T>, class Alloc = std::allocator<T> 
 	    bool	equal(const_reference v1, const_reference v2)
 	    { return (!less(v1, v2) && !less(v2, v1)); }
 
-    };
+	
+public:
+    allocator_type		_allocator;
+    allocator_node	_allocator_node;
+    Compare				_comparator;
+    size_type			_size;
+    node			*_head;
+    node			*_root;
 public:
 	iterator	begin()
 	{
@@ -207,7 +210,7 @@ public:
 		return (const_iterator(this->_head));
 	}
 
-    node_type* BSTInsert(node_type* root, node_type *pt)
+    node* BSTInsert(node* root, node *pt)
     {
         /* If the tree is empty, return a new node */
         if (root == NULL)
@@ -219,14 +222,195 @@ public:
             root->left  = BSTInsert(root->left, pt);
             root->left->prev = root;
         }
-        else if (pt->data > root->data)
+        else if (pt->_data > root->_data)
         {
             root->right = BSTInsert(root->right, pt);
             root->right->prev = root;
         }
-    
-        /* return the (unchanged) node pointer */
         return root;
     }
+
+	void levelOrderHelper(node *root)
+	{
+	    if (root == NULL)
+	        return;
+	
+	    std::queue<node *> q;
+	    q.push(root);
+	
+	    while (!q.empty())
+	    {
+	        node *temp = q.front();
+	        std::cout << temp->_data << "  ";
+	        q.pop();
+	
+	        if (temp->left != NULL)
+	            q.push(temp->left);
+	
+	        if (temp->right != NULL)
+	            q.push(temp->right);
+	    }
+	}
+	
+	void rotateLeft(node *&root, node *&pt)
+	{
+	    node *pt_right = pt->right;
+	
+	    pt->right = pt_right->left;
+	
+	    if (pt->right != NULL)
+	        pt->right->prev = pt;
+	
+	    pt_right->prev = pt->prev;
+	
+	    if (pt->prev == NULL)
+	        root = pt_right;
+	
+	    else if (pt == pt->prev->left)
+	        pt->prev->left = pt_right;
+	
+	    else
+	        pt->prev->right = pt_right;
+	
+	    pt_right->left = pt;
+	    pt->prev = pt_right;
+	}
+	
+	void rotateRight(node *&root, node *&pt)
+	{
+	    node *pt_left = pt->left;
+	
+	    pt->left = pt_left->right;
+	
+	    if (pt->left != NULL)
+	        pt->left->prev = pt;
+	
+	    pt_left->prev = pt->prev;
+	
+	    if (pt->prev == NULL)
+	        root = pt_left;
+	
+	    else if (pt == pt->prev->left)
+	        pt->prev->left = pt_left;
+	
+	    else
+	        pt->prev->right = pt_left;
+	
+	    pt_left->right = pt;
+	    pt->prev = pt_left;
+	}
+	
+	// This function fixes violations
+	// caused by BST insertion
+	void fixViolation(node *&root, node *&pt)
+	{
+	    node *parent_pt = NULL;
+	    node *grand_parent_pt = NULL;
+	
+	    while ((pt != root) && (pt->_color != BLACK) &&
+	           (pt->prev->_color == RED))
+	    {
+		
+	        parent_pt = pt->prev;
+	        grand_parent_pt = pt->prev->prev;
+	
+	        /*  Case : A
+	            Parent of pt is left child
+	            of Grand-prev of pt */
+	        if (parent_pt == grand_parent_pt->left)
+	        {
+			
+	            node *uncle_pt = grand_parent_pt->right;
+	
+	            /* Case : 1
+	               The uncle of pt is also red
+	               Only Recoloring required */
+	            if (uncle_pt != NULL && uncle_pt->_color ==
+	                                                   RED)
+	            {
+	                grand_parent_pt->_color = RED;
+	                parent_pt->_color = BLACK;
+	                uncle_pt->_color = BLACK;
+	                pt = grand_parent_pt;
+	            }
+	
+	            else
+	            {
+	                /* Case : 2
+	                   pt is right child of its prev
+	                   Left-rotation required */
+	                if (pt == parent_pt->right)
+	                {
+	                    rotateLeft(root, parent_pt);
+	                    pt = parent_pt;
+	                    parent_pt = pt->prev;
+	                }
+	
+	                /* Case : 3
+	                   pt is left child of its prev
+	                   Right-rotation required */
+	                rotateRight(root, grand_parent_pt);
+	                ft::swap(parent_pt->_color,
+	                           grand_parent_pt->_color);
+	                pt = parent_pt;
+	            }
+	        }
+	
+	        /* Case : B
+	           Parent of pt is right child
+	           of Grand-prev of pt */
+	        else
+	        {
+	            node *uncle_pt = grand_parent_pt->left;
+	
+	            /*  Case : 1
+	                The uncle of pt is also red
+	                Only Recoloring required */
+	            if ((uncle_pt != NULL) && (uncle_pt->_color ==
+	                                                    RED))
+	            {
+	                grand_parent_pt->_color = RED;
+	                parent_pt->_color = BLACK;
+	                uncle_pt->_color = BLACK;
+	                pt = grand_parent_pt;
+	            }
+	            else
+	            {
+	                /* Case : 2
+	                   pt is left child of its prev
+	                   Right-rotation required */
+	                if (pt == parent_pt->left)
+	                {
+	                    rotateRight(root, parent_pt);
+	                    pt = parent_pt;
+	                    parent_pt = pt->prev;
+	                }
+	
+	                /* Case : 3
+	                   pt is right child of its prev
+	                   Left-rotation required */
+	                rotateLeft(root, grand_parent_pt);
+	                ft::swap(parent_pt->_color,
+	                         grand_parent_pt->_color);
+	                pt = parent_pt;
+	            }
+	        }
+	    }
+	
+	    root->_color = BLACK;
+	}
+	
+	// Function to insert a new node with given _data
+	void insert(value_type _data)
+	{
+	    // node *pt = new node(_data, BLACK);	
+		node *pt = new_node(_data);
+	    // Do a normal BST insert
+	    this->_root = BSTInsert(this->_root, pt);
+	
+	    // fix Red Black Tree violations
+	    fixViolation(this->_root, pt);
+	}
+ 
     };
 // } // namespace ft

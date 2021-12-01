@@ -5,6 +5,14 @@
 namespace ft
 {
 
+template <class T>
+void	swap(T &a, T &b)
+{
+	T	x = a;
+	a = b;
+	b = x;
+}
+
 template<class InputIterator>
 typename ft::iterator_traits<InputIterator>::difference_type
 distance (InputIterator first, InputIterator last)
