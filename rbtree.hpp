@@ -170,9 +170,54 @@ public:
     node			*_head;
     node			*_root;
 public:
-	red_black_tree(node *head, node *root, allocator_type alloc_t = std::allocator<T>(), allocator_node alloc_n = std::allocator<node>(), Compare comp = ft::less<T>() )
-		:	_head(head), _root(root), _allocator(alloc_t), _allocator_node(alloc_n), _comparator(comp)
-	{}
+	bool	is_red_black_tree()
+	{
+		std::vector<std::pair<int, node*> >	vec;
+
+		vec.push_back(std::make_pair(0, this->_root));
+
+		int i = 0;
+		while (1)
+		{
+			if (vec[i].second)
+			{
+				if (node::is_node(vec[i].second) && (node::color(vec[i].second) == RED) &&
+					((node::is_node(vec[i].second->left) && node::color(vec[i].second->left) == RED) ||
+					(node::is_node(vec[i].second->right) && node::color(vec[i].second->right) == RED)))
+					return (false);
+				if (node::is_node(vec[i].second) && node::color(vec[i].second) == RED)
+				{
+					vec.push_back(std::make_pair(vec[i].first, vec[i].second->left));
+					vec.push_back(std::make_pair(vec[i].first, vec[i].second->right));
+				}
+				else if (node::is_node(vec[i].second))
+				{
+					vec.push_back(std::make_pair(vec[i].first + 1, vec[i].second->left));
+					vec.push_back(std::make_pair(vec[i].first + 1, vec[i].second->right));
+				}
+				vec.erase(vec.begin() + i);
+				i = 0;
+			}
+			else
+				i++;
+			if (i == vec.size())
+				break ;
+		}
+		i = vec[0].first;
+		for (int j = 1; j < vec.size(); j++)
+		{
+			if (vec[j].first != i)
+				return (false);
+		}
+		return (true);
+	}
+	red_black_tree()
+		: _allocator(Alloc()), _size(0), _head(new_node(value_type(), RED)), _root(nullptr), _comparator(Compare())
+	{ }
+
+	// red_black_tree(node *head, node *root, allocator_type alloc_t = std::allocator<T>(), allocator_node alloc_n = std::allocator<node>(), Compare comp = ft::less<T>() )
+		// :	_head(head), _root(root), _allocator(alloc_t), _allocator_node(alloc_n), _comparator(comp)
+	// {}
 
 	iterator	begin()
 	{
@@ -212,6 +257,20 @@ public:
 	const_reverse_iterator	rend() const
 	{
 		return (const_iterator(this->_head));
+	}
+
+	bool SearchInTree(node* root, value_type data)
+	{
+		while (root)
+		{
+			if (less(data, root->_data))
+				root = root->left;
+			else if (less(root->_data, data))
+				root = root->right;
+			else
+				return (true);
+		}
+		return (false);
 	}
 
     node* BSTInsert(node* root, node *pt)
@@ -408,12 +467,17 @@ public:
 	void insert(value_type _data)
 	{
 	    // node *pt = new node(_data, BLACK);
+		if (SearchInTree(this->_root, _data))
+			return ;
 		node *pt = new_node(_data);
 	    // Do a normal BST insert
+
 	    this->_root = BSTInsert(this->_root, pt);
 
 	    // fix Red Black Tree violations
+
 	    fixViolation(this->_root, pt);
+		// this->_allocator_node.destroy(pt);
 	}
 
     };
