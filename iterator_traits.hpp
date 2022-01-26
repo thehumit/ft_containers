@@ -9,10 +9,10 @@ namespace ft
     struct input_iterator_tag {};
 	struct forward_iterator_tag 
 		: public input_iterator_tag {};
-	struct biderectional_iterator_tag
+	struct BidirectionalIteratorTag
 		: public forward_iterator_tag {};
 	struct random_access_iterator_tag
-		: public biderectional_iterator_tag {};
+		: public BidirectionalIteratorTag {};
 
     template <class Iterator>
 	struct iterator_traits

@@ -20,14 +20,14 @@ template <class T, class Alloc = std::allocator<T> >
 class vector
 {
 public:
-    typedef T   type_name;
+    typedef T   value_type;
     typedef Alloc allocator_type;
     typedef typename allocator_type::reference  reference;
     typedef typename allocator_type::const_reference    const_reference;
     typedef typename allocator_type::pointer            pointer;
     typedef typename allocator_type::const_pointer      const_pointer;
-    typedef ft::RandomAccessIterator<type_name>               iterator;
-    typedef ft::RandomAccessIterator<const type_name>            const_iterator;
+    typedef ft::RandomAccessIterator<value_type>               iterator;
+    typedef ft::RandomAccessIterator<const value_type>            const_iterator;
     typedef ft::reverse_iterator<iterator>             reverse_iterator;
     typedef ft::reverse_iterator<const_iterator>       const_reverse_iterator;
     typedef typename ft::iterator_traits<iterator>::difference_type    difference_type;
@@ -42,7 +42,7 @@ public:
 		_allocator(alloc)
 	{}
 
-    explicit vector (size_type n, const type_name& val = type_name(),
+    explicit vector (size_type n, const value_type& val = value_type(),
         const allocator_type& alloc = allocator_type())
 	:
         _arr(nullptr),
@@ -179,7 +179,7 @@ public:
         return (*(this->_arr + this->_size -1));
     }
 
-    void resize(size_type n, type_name val = type_name())
+    void resize(size_type n, value_type val = value_type())
     {
         size_type old_size = this->_size;
         if (n < this->_size)
@@ -216,7 +216,7 @@ public:
                 this->_capacity *= 2;
             else
                 this->_capacity = n;
-            type_name* newarr = this->_allocator.allocate(this->_capacity);
+            value_type* newarr = this->_allocator.allocate(this->_capacity);
             for (size_type i = 0; i < this->_size; i++)
             {
                 this->_allocator.construct(newarr + i, this->_arr[i]);
@@ -227,7 +227,7 @@ public:
         }
     }
 
-    void push_back(const type_name& val)
+    void push_back(const value_type& val)
     {
         this->reserve(this->_size + 1);
         this->_allocator.construct(this->_arr + this->_size, val);
@@ -250,14 +250,14 @@ public:
         return (this->_allocator.max_size()); 
     }
 
-    iterator insert(iterator position, const type_name &val)
+    iterator insert(iterator position, const value_type &val)
     {
         difference_type dist = position - this->begin();
 		this->insert(position, 1, val);
 		return (this->begin() + dist);
 	}
 
-    void insert(iterator position, size_type n, const type_name &val)
+    void insert(iterator position, size_type n, const value_type &val)
     {
         iterator it = this->begin();
         size_type old_capacity = this->_capacity;
@@ -271,7 +271,7 @@ public:
             else
                 this->_capacity = this->_size + n;
         }
-        type_name* newarr = this->_allocator.allocate(this->_capacity);
+        value_type* newarr = this->_allocator.allocate(this->_capacity);
         for (size_type i = 0; it != position; i++)
         {
             this->_allocator.construct(newarr + i, this->_arr[i]);
@@ -373,7 +373,7 @@ public:
     //         else
     //             this->_capacity = this->_size + dist;
     //     }
-    //     type_name* newarr = this->_allocator.allocate(this->_capacity);
+    //     value_type* newarr = this->_allocator.allocate(this->_capacity);
     //     for (; it != position; i++)
     //     {
     //         this->_allocator.construct(newarr + i, this->_arr[i]);
@@ -395,7 +395,7 @@ public:
     //     this->_allocator.deallocate(this->_arr, old_capacity);
     // }
 
-    void assign(size_type n, const type_name &val)
+    void assign(size_type n, const value_type &val)
     {
         this->clear();
         if (n == 0)
@@ -433,7 +433,7 @@ public:
         }
         else
         {
-            type_name *newarr = this->_allocator.allocate(dist);
+            value_type *newarr = this->_allocator.allocate(dist);
             for(int i = 0; &(*first) != &(*last); first++, i++)
                 this->_allocator.construct(newarr + i, *first);
             this->_allocator.deallocate(this->_arr, this->capacity());

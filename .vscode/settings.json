@@ -16,6 +16,17 @@
         "deque": "cpp",
         "memory_resource": "cpp",
         "map": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "__bit_reference": "cpp",
+        "__string": "cpp",
+        "__tree": "cpp",
+        "algorithm": "cpp",
+        "complex": "cpp",
+        "functional": "cpp",
+        "locale": "cpp",
+        "optional": "cpp",
+        "queue": "cpp",
+        "type_traits": "cpp",
+        "__nullptr": "cpp"
     }
 }
