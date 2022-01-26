@@ -479,6 +479,172 @@ public:
 	    fixViolation(this->_root, pt);
 		// this->_allocator_node.destroy(pt);
 	}
+	//////////////
+	void delete_and_clear_node(node *p_node)
+    {
+        node_val_alloc.destroy(node->val);
+        node_val_alloc.deallocate(node->val, 1);
+        node_allocate.destroy(node);
+        node_allocate.deallocate(node, 1);
+    }
 
-    };
+	node *successor(node *node)
+	{
+		node *temp = node;
+
+		while (temp->left && temp->left != nullptr)
+			temp = temp->left;
+
+		return temp;
+	}
+
+	node *BSTreplace(node *x)
+	{
+		if (x->left != nullptr && x->right != nullptr)
+			return successor(x->right);
+
+		if (x->left == nullptr && x->right == nullptr)
+			return nullptr;
+
+		if (x->left != nullptr)
+			return x->left;
+		else
+			return x->right;
+	}
+
+	void deleteNode(node *p_node)
+	{
+		node *node_replace = BSTreplace(p_node);
+
+		bool uvBlack = (node_replace == nullptr || (node_replace->color == BLACK && p_node->color ==
+																						BLACK));
+		node *parent = p_node->parent;
+		if (node_replace == nullptr)
+		{
+			if (p_node == m_root)
+			{
+				m_root = node_replace;
+			}
+			else
+			{
+				if (uvBlack)
+				{
+					fixDoubleBlack(p_node);
+				}
+				else
+				{
+					if (sibling(p_node) != nullptr)
+						sibling(p_node)->color = RED;
+				}
+				if (is_on_left(p_node))
+				{
+					parent->left = nullptr;
+				}
+				else
+					parent->right = nullptr;
+			}
+			delete_and_clear_node(p_node);
+			m_size--;
+			return;
+		}
+		if (p_node->left == nullptr || p_node->right == nullptr)
+		{
+			if (p_node == m_root)
+			{
+				delete_and_clear_node(p_node);
+				m_root = node_replace;
+				m_size--;
+			}
+			else
+			{
+				if (isOnLeft(p_node))
+					parent->left = node_replace;
+				else
+					parent->right = node_replace;
+				delete_and_clear_node(p_node);
+				m_size--;
+				node_replace->parent = parent;
+				if (uvBlack)
+				{
+					fixDoubleBlack(node_replace);
+				}
+				else
+					node_replace->color = BLACK;
+			}
+			return;
+		}
+		swapValues(node_replace, p_node);
+		deleteNode(node_replace);
+	}
+
+	void fixDoubleBlack(node *p_node)
+	{
+		if (p_node == m_root)
+			return;
+		node *sibl = sibling(p_node);
+		node *parent = p_node->parent;
+		if (sibl == nullptr)
+			fixDoubleBlack(parent);
+		else
+		{
+			if (sibl->color == RED)
+			{
+				parent->color = RED;
+				sibl->color = BLACK;
+				if (isOnLeft(sibl))
+					rightRotate(parent);
+				else
+					leftRotate(parent);
+				fixDoubleBlack(p_node);
+			}
+			else
+			{
+				if (hasRedChild(sibl))
+				{
+					if (sibl->left != nullptr &&
+						sibl->left->color == RED)
+					{
+						if (isOnLeft(sibl))
+						{
+							sibl->left->color = sibl->color;
+							sibl->color = parent->color;
+							rightRotate(parent);
+						}
+						else
+						{
+							sibl->left->color = parent->color;
+							rightRotate(sibl);
+							leftRotate(parent);
+						}
+					}
+					else
+					{
+						if (isOnLeft(sibl))
+						{
+							sibl->right->color = parent->color;
+							leftRotate(sibl);
+							rightRotate(parent);
+						}
+						else
+						{
+							sibl->right->color = sibl->color;
+							sibl->color = parent->color;
+							leftRotate(parent);
+						}
+					}
+					parent->color = BLACK;
+				}
+				else
+				{
+					sibl->color = RED;
+					if (parent->color == BLACK)
+						fixDoubleBlack(parent);
+					else
+						parent->color = BLACK;
+				}
+			}
+		}
+	}
+
+	};
 // } // namespace ft
